@@ -29,7 +29,7 @@ int main() {
         if (rb > 0) break;
     }
 
-    printf("Произошёл ввод\n");
+    printf("Произошёл ввод \n");
 
     free(mem);
     close(fd);
