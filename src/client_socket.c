@@ -1,3 +1,4 @@
+#include "common.h"
 #include <arpa/inet.h>
 #include <errno.h>
 #include <netinet/in.h>
@@ -16,12 +17,12 @@ int main()
     // Получаем файловый дескриптор серверного сокета
     int client_socket_fd = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
     if (client_socket_fd == -1) {
-        print_error("Не удалось открыть сокет");
+        print_error_and_exit(errno, "Не удалось открыть сокет");
         exit(1);
     }
 
     const char* host = "127.0.0.1";
-    const in_port_t port = 8099;
+    const in_port_t port = 8088;
 
     struct sockaddr_in addr;
     addr.sin_family = AF_INET;
@@ -31,16 +32,10 @@ int main()
     // Коннектимся к серверному сокету
     r = connect(client_socket_fd, (struct sockaddr*)&addr, sizeof(addr));
     if (r == -1) {
-        char buf[200];
-        sprintf((char*)&buf,
-            "Не удалось подсоединиться к серверному сокету по адресу %s:%d",
-            host, port);
-        print_error((char*)&buf);
-        exit(1);
+        print_error_and_exit(errno, "Не удалось подсоединиться к серверному сокету по адресу %s:%d", host, port);
     }
 
-    fprintf(stdout, "Удалось подключиться к серверному сокету по адресу %s:%d",
-        host, port);
+    fprintf(stdout, "Удалось подключиться к серверному сокету по адресу %s:%d\n", host, port);
 
     return 0;
 }
