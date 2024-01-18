@@ -7,6 +7,7 @@
 #include <string.h>
 #include <sys/socket.h>
 #include <sys/types.h>
+#include <unistd.h>
 
 #define print_error(msg) fprintf(stderr, "%s\n%s\n", msg, strerror(errno))
 
@@ -22,7 +23,7 @@ int main()
     }
 
     const char* host = "127.0.0.1";
-    const in_port_t port = 8088;
+    const in_port_t port = 8188;
 
     struct sockaddr_in addr;
     addr.sin_family = AF_INET;
@@ -36,6 +37,16 @@ int main()
     }
 
     fprintf(stdout, "Удалось подключиться к серверному сокету по адресу %s:%d\n", host, port);
+
+    close(client_socket_fd);
+    if (r == -1) {
+        print_error_and_exit(errno, "Не удалось закрыть клиентский сокет");
+    }
+
+    char* buf = malloc(1000);
+    read(client_socket_fd, buf, 1000);
+    puts(buf);
+    free(buf);
 
     return 0;
 }

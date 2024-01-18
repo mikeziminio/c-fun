@@ -3,15 +3,18 @@
 # 	 command2
 # 	 ......]
 
-all: clear format client_socket server_socket io
+all: clear format sockets io
 
-sockets: client_socket server_socket
+sockets: client_socket server_socket epoll
 
 client_socket:
 	gcc -o build/client_socket src/client_socket.c src/common.c
 
 server_socket:
 	gcc -o build/server_socket src/server_socket.c src/common.c
+
+epoll:
+	gcc -o build/epoll src/epoll.c src/common.c
 
 io:
 	gcc -o build/io src/io.c src/common.c

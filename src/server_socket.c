@@ -7,10 +7,11 @@
 #include <string.h>
 #include <sys/socket.h>
 #include <sys/types.h>
+#include <unistd.h>
 
 int main()
 {
-    int r;
+    int r, e;
 
     // Получаем файловый дескриптор серверного сокета
     int server_socket_fd = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
@@ -23,13 +24,14 @@ int main()
     // Устанавливаем опции серверного сокета
     r = setsockopt(server_socket_fd, SOL_SOCKET, SO_REUSEADDR, &enabled, sizeof(enabled));
     if (r == -1) {
+        e = close(server_socket_fd);
         print_error_and_exit(errno, "Не удалось установить опцию сокета %s", "SO_REUSEADDR");
     }
 
     // Добавить SO_REUSEPORT
 
     const char* host = "127.0.0.1";
-    const in_port_t port = 8088;
+    const in_port_t port = 8188;
 
     struct sockaddr_in server_addr;
     server_addr.sin_family = AF_INET;
@@ -66,6 +68,21 @@ int main()
         in_port_t client_port = client_addr.sin_port;
 
         fprintf(stdout, "Установлено клиентское подключение с адреса %s:%d\n", client_host, client_port);
+
+        char msg[200];
+        snprintf(msg, sizeof(msg), "Привет, (%s:%d)!\n", client_host, client_port);
+
+        write(conn_socket_fd, msg, strlen(msg));
+
+        close(conn_socket_fd);
+        if (r == -1) {
+            print_error_and_exit(errno, "Не удалось закрыть сокет клиентского подключения");
+        }
+    }
+
+    close(server_socket_fd);
+    if (r == -1) {
+        print_error_and_exit(errno, "Не удалось закрыть сокет серверного подключения");
     }
 
     return 0;
